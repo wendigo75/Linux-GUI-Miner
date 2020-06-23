@@ -1,5 +1,7 @@
 LinuxGUIMiner
 
+THIS IS NOT THE MINER! FIRST of all download your miner from original repository, THEN use this script !!
+
 No need installation simply copy it in miner folder (if have more than one miner) or desktop.
 
 NEVER RENAME IT or the file will not save changes or reload default settings.
