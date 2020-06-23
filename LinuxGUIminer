@@ -1,0 +1,228 @@
+#!/bin/bash
+# Script by Wendigo
+# ELENCO FUNZIONI
+# USCITA
+function donate {
+zenity --width 900 --height 200 --info --title="IF U LIKE IT ... Remember to DONATE once !!" --text="
+YTN = YRd3AotTUFP8KgYhUHTkFTr96t32kCwqDM
+XLA = Se41cMuULExYDyAxZdv1C4SgHtnMMCBnkaNoGcUf3y81G2pZW9cHeoEFjP1zgdBv9sCZ1HR668mqsS6ogZ2tvtvi2EpJppyWV
+XMR = 866MiAuYDPHBrf5c3sMMGQCUzGz47iMvxGtoAv1JYLotZYwQQqX6bSbZYzG3GtApRLNwEsJefoD9R6iokc1jmeY14pdrZB2
+BTC = 14oBwBM12SE9EeciCo6fV4RiTfGrQYGXf4
+LTC = LPP9iJNx62bHS81TNiGKgaNuQEGYSgNqq4"
+exit
+}
+# INIZIO MINAGGIO
+function mining {
+reload
+minername=$(basename "$defminer")
+dirpos=$(dirname "$defminer")
+cd $dirpos
+minerun="${minername} -o ${defsite} -u ${defuser} -p ${defpswd}"
+if [[ -n "$defalgo" ]]; then
+minerun="${minerun} -a ${defalgo}"
+fi
+if [[ -n "$extra" ]]; then
+minerun="${minerun} -${extra}"
+fi
+./$minerun 2>&1 | zenity --text-info --title=$minername --width 500 --height 300 
+donate
+exit
+}
+# SCELTA PARAMETRI
+function addMAIN {
+addmain=$(zenity --width 300 --info --title="Select ITEM to modify" --text="
+URL...........................for change stratum-URL 
+PASSWORD..............for change Password 
+MINER......................for change Mining Software
+ALGO.......................specify Algorithm   *Blank or Auto depends from miner*
+EXTRA......................extra option for commandline    *Blank if none needed*" --extra-button="USER" --ok-label="EXIT" --extra-button="URL" --extra-button="PASSWORD" --extra-button="MINER" --extra-button="ALGO" --extra-button="EXTRA")
+case $addmain in
+"URL" ) 
+addsite
+;;
+"PASSWORD")
+addpswd
+;;
+"USER")
+adduser
+;;
+"MINER")
+addminer
+;;
+"ALGO")
+addALGO
+;;
+"EXTRA")
+addEXTRA
+;;
+esac
+start
+exit
+}
+# NUOVO COMANDO EXTRA
+function addEXTRA {
+new_extra=$(zenity --file-selection --title="SELECT extra Opion (BLANK if unnecessary)" --width 300 --height 100)
+    filename='LinuxGUIminer'
+    n=1
+    while read line; do
+    n=$((n+1))
+    if [[ $line = "^extra^" ]]; then 
+    sed -i "$n i $new_extra" $filename
+    n=$((n+1))
+    sed -i "$n d" $filename
+    fi
+done < $filename
+addMAIN
+exit
+}
+# NUOVO ALGORITMO
+function addALGO {
+new_algo=$(zenity --file-selection --title="SELECT Algorithm" --width 300 --height 100)
+    filename='LinuxGUIminer'
+    n=1
+    while read line; do
+    n=$((n+1))
+    if [[ $line = "^defalgo^" ]]; then 
+    sed -i "$n i $new_algo" $filename
+    n=$((n+1))
+    sed -i "$n d" $filename
+    fi
+done < $filename
+addMAIN
+exit
+}
+# SCELTA FILE MINATORE
+function addminer {
+new_miner=$(zenity --file-selection --title="SELECT MINER" --width 300 --height 100)
+    filename='LinuxGUIminer'
+    n=1
+    while read line; do
+    n=$((n+1))
+    if [[ $line = "^defminer^" ]]; then 
+    sed -i "$n i $new_miner" $filename
+    n=$((n+1))
+    sed -i "$n d" $filename
+    fi
+done < $filename
+addMAIN
+exit
+}
+# AVVIO
+function start { 
+reload
+start=$(zenity --width 500 --info --title="DEFAULT PARAMETRES" --text "
+URL................$defsite
+USER..............$defuser
+PASSWRD......$defpswd
+MINER............$defminer
+ALGO..............$defalgo
+EXTRA.............$extra" --extra-button="START MINING" --extra-button="MODIFY" --ok-label="EXIT")
+case $start in
+"START MINING" ) 
+mining
+;;
+"MODIFY")
+addMAIN
+;;
+esac
+donate
+exit
+}
+# NUOVA PASSWORD
+function addpswd {
+new_pswd=$(zenity --text-info --title "New PASSWORD entry" --editable --width 300 --height 100)
+    filename='LinuxGUIminer'
+    n=1
+    while read line; do
+    n=$((n+1))
+    if [[ $line = "^defpswd^" ]]; then 
+    sed -i "$n i $new_pswd" $filename
+    n=$((n+1))
+    sed -i "$n d" $filename
+    fi
+done < $filename
+addMAIN
+exit
+}
+# NUOVO UTENTE
+function adduser {
+new_user=$(zenity --text-info --title "New USER entry" --editable --width 300 --height 100)
+    filename='LinuxGUIminer'
+    n=1
+    while read line; do
+    n=$((n+1))
+    if [[ $line = "^defuser^" ]]; then 
+    sed -i "$n i $new_user" $filename
+    n=$((n+1))
+    sed -i "$n d" $filename
+    fi
+done < $filename
+addMAIN
+exit
+}
+# NUOVO SITO
+function addsite {
+new_url=$(zenity --text-info --title "New URL entry" --editable --width 300 --height 100)
+    filename='LinuxGUIminer'
+    n=1
+    while read line; do
+    n=$((n+1))
+    if [[ $line = "^defsite^" ]]; then 
+    sed -i "$n i $new_url" $filename
+    n=$((n+1))
+    sed -i "$n d" $filename
+    fi
+done < $filename
+addMAIN
+exit
+}
+# LETTURA VARIABILI
+function reload {
+filename='LinuxGUIminer'
+    while read line; do
+    if [[ $line = "^defuser^" ]]; then 
+    read line
+    defuser=$line
+    fi
+    if [[ $line = "^defsite^" ]]; then 
+    read line
+    defsite=$line
+    fi
+    if [[ $line = "^defpswd^" ]]; then 
+    read line
+    defpswd=$line
+    fi
+    if [[ $line = "^defminer^" ]]; then 
+    read line
+    defminer=$line
+    fi
+    if [[ $line = "^defalgo^" ]]; then 
+    read line
+    defalgo=$line
+    fi
+    if [[ $line = "^extra^" ]]; then 
+    read line
+    extra=$line
+    fi
+done < $filename
+}
+# AVVIO DEL PROGRAMMA
+reload
+if  [[ $defminer = "" ]]
+then addminer
+else start
+fi
+exit
+# ELENCO PARAMETRI
+^defuser^
+ 
+^defsite^
+
+^defpswd^
+
+^defminer^
+
+^defalgo^
+
+^extra^
+
